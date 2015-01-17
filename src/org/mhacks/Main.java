@@ -22,17 +22,43 @@ public class Main extends Activity {
 
     NetworkMidiOutput output;
 
+    final int[] effectValues = {1,7,10,11,64,100,101,121,123};
+    final int[] effectBanks = {0xb0,0xb1,0xb2,0xb3,0xb4,0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xbb,0xbc,0xbd,0xbe,0xbf};
+
+    TextView status;
+
+
+    public void sendValue(float val, float clampLow, float clampHigh, int effectBank, int effectValue){
+        byte[] vals = new byte[3];
+        vals[0] = (byte) effectBanks[effectBank];
+        vals[1] = (byte) effectValues[effectValue];
+        if ((clampLow<clampHigh && val<clampLow) || val>clampLow){
+            //lower than minimum values
+            vals[2] = (byte) 0;
+        }else if((clampLow<clampHigh && val>clampHigh) || val<clampHigh){
+            //higher than maximum value
+            vals[2] = (byte) 127;
+        }else {
+            vals[2] = (byte) Math.round((val - clampLow) / (clampHigh - clampLow) * 127);
+        }
+        try{
+            output.sendMidiOnThread(vals);
+        }catch(Exception e){
+            status.setText(e.getMessage());
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.main);
 
-        TextView t = (TextView) findViewById(R.id.op);
+        status = (TextView) findViewById(R.id.op);
         try{
             sys = NetworkMidiSystem.get(this);
         }catch(Exception e){
-            t.setText(e.getMessage());
+            status.setText(e.getMessage());
             return;
         }
 
@@ -47,13 +73,13 @@ public class Main extends Activity {
 
 
 
-        t.setText(NMJConfig.getIP(0));
+        status.setText(NMJConfig.getIP(0));
         try {
             output = sys.openOutput(0, new Sink());
-            t.append("//"+String.valueOf(NMJConfig.getRTPState(0)));
+            status.append("//"+String.valueOf(NMJConfig.getRTPState(0)));
 
         }catch(Exception e){
-            t.setText(e.getMessage());
+            status.setText(e.getMessage());
         }
 
         //for
