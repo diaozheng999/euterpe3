@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Window;
 import android.view.WindowManager;
@@ -15,9 +16,17 @@ import de.humatic.nmj.*;
 import android.view.View;
 import android.widget.ToggleButton;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Vector;
+
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
+import java.util.Vector;
 
 class Sink implements NetworkMidiClient {
 }
@@ -46,7 +55,9 @@ public class Main extends Activity implements SensorEventListener {
 
     }
 
-    TextView status;
+    TextView status, status2;
+
+    private HashMap<Vector<Integer>, byte[]> cache;
 
 
 
@@ -64,15 +75,24 @@ public class Main extends Activity implements SensorEventListener {
             vals[2] = (byte) Math.round((val - clampLow) / (clampHigh - clampLow) * 127);
         }
         try{
+            Vector<Integer> key = new Vector<Integer>(effectBank, effectValue);
+            if(cache.containsKey(key) && Arrays.equals(cache.get(key), vals)){
+                return;
+            }
             output.sendMidiOnThread(vals);
+            status2.append("Sent values "+vals[0]+"/"+vals[1]+"/"+vals[2]+"\n");
+            cache.put(key, vals);
+            status2.scrollTo(0, status2.getHeight());
         }catch(Exception e){
-            status.setText(e.getMessage());
+            status2.append(e.getMessage());
+            status2.scrollTo(0,status2.getHeight());
         }
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -83,10 +103,13 @@ public class Main extends Activity implements SensorEventListener {
 
         lastUpdate = System.currentTimeMillis();
 
+        cache = new HashMap<Vector<Integer>, byte[]>();
 
         smgr = (SensorManager) getSystemService(SENSOR_SERVICE);
 
         status = (TextView) findViewById(R.id.op);
+        status2 = (TextView) findViewById(R.id.stat2);
+        status2.setMovementMethod(new ScrollingMovementMethod());
         reportX = (ToggleButton) findViewById(R.id.reportX);
         reportY = (ToggleButton) findViewById(R.id.reportY);
         reportZ = (ToggleButton) findViewById(R.id.reportZ);
@@ -102,7 +125,7 @@ public class Main extends Activity implements SensorEventListener {
         NMJConfig.setNumChannels(1);
         NMJConfig.setMode(0, NMJConfig.RTPA);
         NMJConfig.setPort(0, 5004);
-        NMJConfig.setIP(0,"35.2.123.178");
+        NMJConfig.setIP(0,"192.168.1.138");
 
         //attempt to start up the connection
 
@@ -145,6 +168,7 @@ public class Main extends Activity implements SensorEventListener {
     private void getAccelerometer(SensorEvent event) {
         float[] values = event.values;
         // Movement
+
         float x = values[0];
         float y = values[1];
         float z = values[2];
