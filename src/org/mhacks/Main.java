@@ -45,8 +45,11 @@ public class Main extends Activity implements SensorEventListener, NetworkMidiLi
     private View view;
     private MidiLogger midiLogger;
 
-    final int[] effectValues = {1,7,10,11,64,71,74,91,93};
-    final int[] effectBanks = {0xb0,0xb1,0xb2,0xb3,0xb4,0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xbb,0xbc,0xbd,0xbe,0xbf};
+    //final int[] effectValues = {1,7,10,11,64,71,74,91,93};
+    //final int[] effectBanks = {0xb0,0xb1,0xb2,0xb3,0xb4,0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xbb,0xbc,0xbd,0xbe,0xbf};
+    final int[] effectValues = {0,1,2,3,4,5};
+    final int[] effectBanks = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15};
+
 
     ToggleButton reportX, reportY, reportZ;
 
@@ -64,17 +67,22 @@ public class Main extends Activity implements SensorEventListener, NetworkMidiLi
 
 
     public void sendValue(float val, float clampLow, float clampHigh, int effectBank, int effectValue){
-        byte[] vals = new byte[3];
-        vals[0] = (byte) effectBanks[effectBank];
-        vals[1] = (byte) effectValues[effectValue];
+        //byte[] vals = new byte[10];
+
+        byte[] vals = {(byte)0xf0, (byte)0x7f, (byte)0x7f, (byte) 0x09, (byte) 0x03,
+                (byte)0, (byte)1,(byte)0,(byte)0, (byte)0x7f};
+
+
+        vals[5] = (byte) effectBanks[effectBank];
+        vals[7] = (byte) effectValues[effectValue];
         if ((clampLow<clampHigh && val<clampLow) ||(clampHigh<=clampLow && val>clampLow)){
             //lower than minimum values
-            vals[2] = (byte) 0;
+            vals[8] = (byte) 0;
         }else if((clampLow<clampHigh && val>clampHigh) || (clampHigh<clampLow && val<clampHigh)){
             //higher than maximum value
-            vals[2] = (byte) 127;
+            vals[8] = (byte) 127;
         }else {
-            vals[2] = (byte) Math.round((val - clampLow) / (clampHigh - clampLow) * 127);
+            vals[8] = (byte) Math.round((val - clampLow) / (clampHigh - clampLow) * 127);
         }
         try{
             Vector<Integer> key = new Vector<Integer>(effectBank, effectValue);
@@ -82,7 +90,7 @@ public class Main extends Activity implements SensorEventListener, NetworkMidiLi
                 return;
             }
             output.sendMidiOnThread(vals);
-            status2.append("Sent values "+vals[0]+"/"+vals[1]+"/"+vals[2]+"\n");
+            status2.append("Sent values "+vals[5]+"/"+vals[7]+"/"+vals[8]+"\n");
             cache.put(key, vals);
             status2.scrollTo(0, status2.getHeight());
         }catch(Exception e){
