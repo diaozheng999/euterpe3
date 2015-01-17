@@ -16,7 +16,8 @@
         android:layout_height="wrap_content"
         android:text="Report X"
         android:id="@+id/reportX"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:checked="false" />
 
     <ToggleButton
         android:layout_width="wrap_content"
@@ -32,6 +33,21 @@
         android:id="@+id/reportZ"
         android:layout_gravity="center_horizontal" />
 
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Report A"
+        android:id="@+id/reportA"
+        android:layout_gravity="center_horizontal" />
+
+    <ToggleButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Report L"
+        android:id="@+id/reportL"
+        android:layout_gravity="center_horizontal"
+        android:checked="false" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -40,6 +56,25 @@
         android:scrollbars="vertical"
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:maxLines="8" />
+
+    <TextView
+        android:id="@+id/proximity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="proximity" />
+
+    <TextView
+        android:id="@+id/light"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="light" />
+
+    <Button
+        android:layout_width="129dp"
+        android:layout_height="164dp"
+        android:text="beat"
+        android:id="@+id/beat"
+        android:layout_gravity="right" />
 
     <TextView
             android:id="@+id/textView"
