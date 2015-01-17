@@ -43,7 +43,7 @@ public class Main extends Activity implements SensorEventListener, NetworkMidiLi
     SensorManager smgr;
     long lastUpdate;
     private View view;
-
+    private MidiLogger midiLogger;
 
     final int[] effectValues = {1,7,10,11,64,71,74,91,93};
     final int[] effectBanks = {0xb0,0xb1,0xb2,0xb3,0xb4,0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xbb,0xbc,0xbd,0xbe,0xbf};
@@ -141,6 +141,8 @@ public class Main extends Activity implements SensorEventListener, NetworkMidiLi
         }catch(Exception e){
             status.setText(e.getMessage());
         }
+
+        midiLogger = new MidiLogger();
 
         //for
         /*
