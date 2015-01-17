@@ -9,8 +9,6 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.Toast;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -25,7 +23,6 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.Vector;
 
-import org.mhacks.MyCompassView;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
@@ -45,13 +42,12 @@ public class Main extends Activity implements SensorEventListener {
     SensorManager smgr;
     long lastUpdate;
     private View view;
-    private MyCompassView compassView;
-    private Sensor sensor;
 
-    final int[] effectValues = {1, 7, 10, 11, 64, 71, 74, 91, 93};
-    final int[] effectBanks = {0xb0, 0xb1, 0xb2, 0xb3, 0xb4, 0xb5, 0xb6, 0xb7, 0xb8, 0xb9, 0xba, 0xbb, 0xbc, 0xbd, 0xbe, 0xbf};
 
-    ToggleButton reportX, reportY, reportZ, reportA, reportL;
+    final int[] effectValues = {1,7,10,11,64,71,74,91,93};
+    final int[] effectBanks = {0xb0,0xb1,0xb2,0xb3,0xb4,0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xbb,0xbc,0xbd,0xbe,0xbf};
+
+    ToggleButton reportX, reportY, reportZ;
 
 
     @Override
@@ -64,41 +60,38 @@ public class Main extends Activity implements SensorEventListener {
     private HashMap<Vector<Integer>, byte[]> cache;
 
 
-    public void sendValue(float val, float clampLow, float clampHigh, int effectBank, int effectValue) {
+
+    public void sendValue(float val, float clampLow, float clampHigh, int effectBank, int effectValue){
         byte[] vals = new byte[3];
         vals[0] = (byte) effectBanks[effectBank];
         vals[1] = (byte) effectValues[effectValue];
-        if ((clampLow < clampHigh && val < clampLow) || (clampHigh <= clampLow && val > clampLow)) {
+        if ((clampLow<clampHigh && val<clampLow) ||(clampHigh<=clampLow && val>clampLow)){
             //lower than minimum values
             vals[2] = (byte) 0;
-        } else if ((clampLow < clampHigh && val > clampHigh) || (clampHigh < clampLow && val < clampHigh)) {
+        }else if((clampLow<clampHigh && val>clampHigh) || (clampHigh<clampLow && val<clampHigh)){
             //higher than maximum value
             vals[2] = (byte) 127;
-        } else {
+        }else {
             vals[2] = (byte) Math.round((val - clampLow) / (clampHigh - clampLow) * 127);
         }
-        try {
+        try{
             Vector<Integer> key = new Vector<Integer>(effectBank, effectValue);
-            if (cache.containsKey(key) && Arrays.equals(cache.get(key), vals)) {
+            if(cache.containsKey(key) && Arrays.equals(cache.get(key), vals)){
                 return;
             }
             output.sendMidiOnThread(vals);
-            status2.append("Sent values " + vals[0] + "/" + vals[1] + "/" + vals[2] + "\n");
+            status2.append("Sent values "+vals[0]+"/"+vals[1]+"/"+vals[2]+"\n");
             cache.put(key, vals);
             status2.scrollTo(0, status2.getHeight());
-        } catch (Exception e) {
+        }catch(Exception e){
             status2.append(e.getMessage());
-            status2.scrollTo(0, status2.getHeight());
+            status2.scrollTo(0,status2.getHeight());
         }
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        compassView = new MyCompassView(this);
-//        setContentView(compassView);
-//        smgr = (SensorManager) getSystemService(android.content.Context.SENSOR_SERVICE);
-//        sensor = smgr.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -120,11 +113,9 @@ public class Main extends Activity implements SensorEventListener {
         reportX = (ToggleButton) findViewById(R.id.reportX);
         reportY = (ToggleButton) findViewById(R.id.reportY);
         reportZ = (ToggleButton) findViewById(R.id.reportZ);
-        reportA = (ToggleButton) findViewById(R.id.reportA);
-        reportL = (ToggleButton) findViewById(R.id.reportL);
-        try {
+        try{
             sys = NetworkMidiSystem.get(this);
-        } catch (Exception e) {
+        }catch(Exception e){
             status.setText(e.getMessage());
             return;
         }
@@ -134,17 +125,18 @@ public class Main extends Activity implements SensorEventListener {
         NMJConfig.setNumChannels(1);
         NMJConfig.setMode(0, NMJConfig.RTPA);
         NMJConfig.setPort(0, 5004);
-        NMJConfig.setIP(0, "35.2.123.178");
+        NMJConfig.setIP(0,"35.2.123.178");
 
         //attempt to start up the connection
+
 
 
         status.setText(NMJConfig.getIP(0));
         try {
             output = sys.openOutput(0, new Sink());
-            status.append("//" + String.valueOf(NMJConfig.getRTPState(0)));
+            status.append("//"+String.valueOf(NMJConfig.getRTPState(0)));
 
-        } catch (Exception e) {
+        }catch(Exception e){
             status.setText(e.getMessage());
         }
 
@@ -165,19 +157,10 @@ public class Main extends Activity implements SensorEventListener {
         //t.append("Done");
     }
 
-
     @Override
     public void onSensorChanged(SensorEvent event) {
-        switch (event.sensor.getType()) {
-            case Sensor.TYPE_ACCELEROMETER:
-                getAccelerometer(event);
-                break;
-            case Sensor.TYPE_PROXIMITY:
-                getProximity(event);
-                break;
-            case Sensor.TYPE_LIGHT:
-                getLight(event);
-                break;
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            getAccelerometer(event);
         }
 
     }
@@ -189,12 +172,12 @@ public class Main extends Activity implements SensorEventListener {
         float x = values[0];
         float y = values[1];
         float z = values[2];
-        if (reportX.isChecked())
-            sendValue(x, -10, 10, 0, 0);
-        if (reportY.isChecked())
-            sendValue(y, -10, 10, 0, 1);
-        if (reportZ.isChecked())
-            sendValue(z, -10, 10, 0, 2);
+        if(reportX.isChecked())
+        sendValue(x, -10, 10, 0, 0);
+        if(reportY.isChecked())
+        sendValue(y, -10, 10, 0, 1);
+        if(reportZ.isChecked())
+        sendValue(z, -10, 10, 0, 2);
 
 
         TextView t = (TextView) findViewById(R.id.textView);
@@ -203,31 +186,13 @@ public class Main extends Activity implements SensorEventListener {
                 Math.round((y + 10) / 20 * 255) * 256 +
                 Math.round((z + 10) / 20 * 255))));
 
-        t.append(String.valueOf(reportX.isChecked()) + "::" + String.valueOf(reportY.isChecked()) + "::" + String.valueOf(reportZ.isChecked()));
+        t.append(String.valueOf(reportX.isChecked())+"::"+String.valueOf(reportY.isChecked())+"::"+String.valueOf(reportZ.isChecked()));
         view.setBackgroundColor(0xFF000000 + Math.round((x + 10) / 20 * 255) * 256 * 256 +
                 Math.round((y + 10) / 20 * 255) * 256 +
                 Math.round((z + 10) / 20 * 255));
 
-        status.setText("RTP State: " + String.valueOf(NMJConfig.getRTPState(0)) + ", Connectivity: " + String.valueOf(NMJConfig.getConnectivity(this)));
+        status.setText("RTP State: "+String.valueOf(NMJConfig.getRTPState(0))+", Connectivity: "+String.valueOf(NMJConfig.getConnectivity(this)));
     }
-
-    private void getProximity(SensorEvent event) {
-        float[] value = event.values;
-        float a = value[0];
-        if (reportA.isChecked())
-            sendValue(a, 0, 5, 0, 3);
-        TextView s = (TextView) findViewById(R.id.proximity);
-        s.setText("proximity: " + String.valueOf(a));
-    }
-
-    private void getLight(SensorEvent event) {
-        float value[] = event.values;
-        float l = value[1];
-//        if (reportL.isChecked())
-        TextView s = (TextView) findViewById(R.id.light);
-        s.setText("light: " + String.valueOf(l));
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -235,12 +200,6 @@ public class Main extends Activity implements SensorEventListener {
         // accelerometer sensors
         smgr.registerListener(this,
                 smgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
-                SensorManager.SENSOR_DELAY_NORMAL);
-        smgr.registerListener(this,
-                smgr.getDefaultSensor(Sensor.TYPE_PROXIMITY),
-                SensorManager.SENSOR_DELAY_NORMAL);
-        smgr.registerListener(this,
-                smgr.getDefaultSensor(Sensor.TYPE_LIGHT),
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
@@ -250,33 +209,7 @@ public class Main extends Activity implements SensorEventListener {
         super.onPause();
         smgr.unregisterListener(this);
     }
-
-//    private SensorEventListener mySensorEventListener = new SensorEventListener() {
-//
-//        @Override
-//        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-//        }
-//
-//
-////        public void onSensorChanged(SensorEvent event) {
-////            // angle between the magnetic north direction
-////            // 0=North, 90=East, 180=South, 270=West
-////            float azimuth = event.values[0];
-////            TextView t = (TextView) findViewById(R.id.compass);
-////            t.setText("compass: "+String.valueOf(azimuth));
-////            compassView.updateData(azimuth);
-////        }
-////    };
-//
-//        @Override
-//        protected void onDestroy() {
-//            super.onDestroy();
-//            if (sensor != null) {
-//                smgr.unregisterListener(mySensorEventListener);
-//            }
-//        }
-//
-//    };
 }
+
 
 
