@@ -10,5 +10,10 @@
             android:text="Hello World, Main"
             android:id="@+id/op"
             />
+    <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Shake to get a toast and to switch color" />
 </LinearLayout>
 
