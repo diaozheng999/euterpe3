@@ -47,7 +47,7 @@ public class Main extends Activity implements SensorEventListener {
     final int[] effectValues = {1,7,10,11,64,71,74,91,93};
     final int[] effectBanks = {0xb0,0xb1,0xb2,0xb3,0xb4,0xb5,0xb6,0xb7,0xb8,0xb9,0xba,0xbb,0xbc,0xbd,0xbe,0xbf};
 
-    ToggleButton reportX, reportY, reportZ;
+    ToggleButton reportX, reportY, reportZ, reportA, reportL;
 
 
     @Override
@@ -113,6 +113,8 @@ public class Main extends Activity implements SensorEventListener {
         reportX = (ToggleButton) findViewById(R.id.reportX);
         reportY = (ToggleButton) findViewById(R.id.reportY);
         reportZ = (ToggleButton) findViewById(R.id.reportZ);
+        reportA = (ToggleButton) findViewById(R.id.reportA);
+        reportL = (ToggleButton) findViewById(R.id.reportL);
         try{
             sys = NetworkMidiSystem.get(this);
         }catch(Exception e){
@@ -159,10 +161,17 @@ public class Main extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            getAccelerometer(event);
+        switch (event.sensor.getType()) {
+            case Sensor.TYPE_ACCELEROMETER:
+                getAccelerometer(event);
+                break;
+            case Sensor.TYPE_PROXIMITY:
+                getProximity(event);
+                break;
+            case Sensor.TYPE_LIGHT:
+                getLight(event);
+                break;
         }
-
     }
 
     private void getAccelerometer(SensorEvent event) {
@@ -193,6 +202,24 @@ public class Main extends Activity implements SensorEventListener {
 
         status.setText("RTP State: "+String.valueOf(NMJConfig.getRTPState(0))+", Connectivity: "+String.valueOf(NMJConfig.getConnectivity(this)));
     }
+
+    private void getProximity(SensorEvent event) {
+        float[] value = event.values;
+        float a = value[0];
+        if (reportA.isChecked())
+            sendValue(a, 0, 5, 0, 3);
+        TextView s = (TextView) findViewById(R.id.proximity);
+        s.setText("proximity: " + String.valueOf(a));
+    }
+
+    private void getLight(SensorEvent event) {
+        float value[] = event.values;
+        float l = value[1];
+        //        if (reportL.isChecked())
+        TextView s = (TextView) findViewById(R.id.light);
+            s.setText("light: " + String.valueOf(l));
+        }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -200,6 +227,12 @@ public class Main extends Activity implements SensorEventListener {
         // accelerometer sensors
         smgr.registerListener(this,
                 smgr.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+                SensorManager.SENSOR_DELAY_NORMAL);
+        smgr.registerListener(this,
+                smgr.getDefaultSensor(Sensor.TYPE_PROXIMITY),
+                SensorManager.SENSOR_DELAY_NORMAL);
+        smgr.registerListener(this,
+                smgr.getDefaultSensor(Sensor.TYPE_LIGHT),
                 SensorManager.SENSOR_DELAY_NORMAL);
     }
 
