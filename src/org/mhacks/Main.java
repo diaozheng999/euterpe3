@@ -125,7 +125,7 @@ public class Main extends Activity implements SensorEventListener {
         NMJConfig.setNumChannels(1);
         NMJConfig.setMode(0, NMJConfig.RTPA);
         NMJConfig.setPort(0, 5004);
-        NMJConfig.setIP(0,"192.168.1.138");
+        NMJConfig.setIP(0,"35.2.123.178");
 
         //attempt to start up the connection
 
@@ -190,6 +190,8 @@ public class Main extends Activity implements SensorEventListener {
         view.setBackgroundColor(0xFF000000 + Math.round((x + 10) / 20 * 255) * 256 * 256 +
                 Math.round((y + 10) / 20 * 255) * 256 +
                 Math.round((z + 10) / 20 * 255));
+
+        status.setText("RTP State: "+String.valueOf(NMJConfig.getRTPState(0))+", Connectivity: "+String.valueOf(NMJConfig.getConnectivity(this)));
     }
     @Override
     protected void onResume() {
