@@ -142,7 +142,7 @@ public class Main extends Activity implements SensorEventListener, NetworkMidiLi
             status.setText(e.getMessage());
         }
 
-        midiLogger = new MidiLogger();
+        midiLogger = new MidiLogger(status2);
 
         //for
         /*
