@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Window;
@@ -31,7 +32,7 @@ import java.util.Vector;
 class Sink implements NetworkMidiClient {
 }
 
-public class Main extends Activity implements SensorEventListener {
+public class Main extends Activity implements SensorEventListener, NetworkMidiListener {
     /**
      * Called when the activity is first created.
      */
@@ -54,6 +55,7 @@ public class Main extends Activity implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
+
 
     TextView status, status2;
 
@@ -209,6 +211,50 @@ public class Main extends Activity implements SensorEventListener {
         super.onPause();
         smgr.unregisterListener(this);
     }
+
+    @Override
+    public void midiReceived(int channel, int ssrc, byte[] data, long timestamp) {
+        /**
+         * As MIDI does not come in on the UI thread, it needs to be off-loaded in
+         * order to be displayed. Android's Handler class is one way to do this.
+         * Note: If you need to work with large numbers of simultaneous MIDI events
+         * or high rate streams, consider copying the incoming data into your own
+         * arrays before sending them via Handlers. nmj will internally reuse memory
+         * and you may risk having data overwritten before you see it appearing in
+         * Handler.handleMessage() otherwise.
+         */
+        Message msg = Message.obtain();
+        Bundle b = new Bundle();
+        b.putByteArray("MIDI", data);
+        b.putInt("CH", channel);
+        msg.setData(b);
+
+        midiLogger.sendMessage(msg);
+
+    }
+
+    private class MidiLogger extends android.os.Handler {
+
+        private StringBuffer sb = new StringBuffer();
+        private TextView tv;
+
+        private MidiLogger(TextView tv) {
+            super();
+            this.tv = tv;
+        }
+
+        public void handleMessage(android.os.Message msg) {
+            Bundle b = msg.getData();
+            sb.delete(0, sb.length());
+            byte[] data = b.getByteArray("MIDI");
+
+            sb.append("MIDI received: ");
+            for (int i = 0; i < data.length; i++) sb.append((data[i] & 0xFF)+" ");
+            sb.append("\n");
+            status2.append(sb.toString()+"\n");
+        }
+    }
+
 }
 
 
