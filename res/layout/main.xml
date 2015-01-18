@@ -3,51 +3,86 @@
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
-        >
-    <TextView
+              android:weightSum="1">
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_gravity="center_horizontal" android:weightSum="1">
+        <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ipField1" android:inputType="number" android:maxLength="3" android:layout_weight="0.2"
+                android:text="35"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="."
+                android:id="@+id/textView2" android:layout_weight="0"/>
+        <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ipField2"
+                  android:inputType="number" android:maxLength="3" android:layout_weight="0.2" android:text="2"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="."
+                  android:id="@+id/textView3" android:layout_weight="0"/>
+        <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ipField3"
+                  android:inputType="number" android:maxLength="3" android:layout_weight="0.2" android:text="123"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="."
+                  android:id="@+id/textView4" android:layout_weight="0"/>
+        <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/ipField4"
+                  android:inputType="number" android:maxLength="3" android:layout_weight="0.2" android:text="178"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text=":"
+                  android:id="@+id/textView5" android:layout_weight="0"/>
+        <EditText android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/portField"
+                  android:inputType="number" android:maxLength="5" android:layout_weight="0.2" android:text="5004"/>
+        <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Connect"
+                android:id="@+id/connect" android:longClickable="false"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:weightSum="1">
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="101dp"
+            android:text="Report X"
+            android:id="@+id/reportX"
+            android:checked="false" android:textOff="X" android:layout_weight="0.34"/>
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="101dp"
+            android:text="Report Y"
+            android:id="@+id/reportY"
+            android:textOff="Y" android:layout_weight="0.34"/>
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="101dp"
+            android:text="Report Z"
+            android:id="@+id/reportZ"
+            android:textOff="Z" android:layout_weight="0.34"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Hello World, Main"
-            android:id="@+id/op"
-            />
-
-    <ToggleButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Report X"
-        android:id="@+id/reportX"
-        android:layout_gravity="center_horizontal"
-        android:checked="false" />
-
-    <ToggleButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Report Y"
-        android:id="@+id/reportY"
-        android:layout_gravity="center_horizontal" />
-
-    <ToggleButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Report Z"
-        android:id="@+id/reportZ"
-        android:layout_gravity="center_horizontal" />
-
-    <ToggleButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Report A"
-        android:id="@+id/reportA"
-        android:layout_gravity="center_horizontal" />
-
-    <ToggleButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Report L"
-        android:id="@+id/reportL"
-        android:layout_gravity="center_horizontal"
-        android:checked="false" />
-
+            android:layout_height="wrap_content">
+        <ToggleButton
+            android:layout_width="129dp"
+            android:layout_height="101dp"
+            android:text="Report A"
+            android:id="@+id/reportA"
+            android:textOff="A"/>
+        <ToggleButton
+            android:layout_width="match_parent"
+            android:layout_height="101dp"
+            android:text="Report L"
+            android:id="@+id/reportL"
+            android:checked="false" android:textOff="L"/>
+        <ToggleButton android:layout_width="129dp" android:layout_height="101dp" android:text="Report L"
+                      android:id="@+id/toggleButton" android:checked="false"/>
+    </LinearLayout>
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -69,19 +104,82 @@
         android:layout_height="wrap_content"
         android:text="light" />
 
-    <Button
-        android:layout_width="129dp"
-        android:layout_height="164dp"
-        android:text="beat"
-        android:id="@+id/beat"
-        android:layout_gravity="right" />
-
     <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Shake to get a toast and to switch color" />
-
+            android:layout_height="46dp"
+            android:text="Shake to get a toast and to switch color" android:layout_weight="0.82"/>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:weightSum="1">
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="99dp"
+            android:text="Button 1"
+            android:id="@+id/btn1"
+            android:layout_weight="0.32"/>
+        <Button android:layout_width="wrap_content" android:layout_height="99dp" android:text="Button 2"
+                android:id="@+id/btn2" android:layout_weight="0.32"/>
+        <Button android:layout_width="wrap_content" android:layout_height="99dp" android:text="Button 3"
+                android:id="@+id/btn3" android:layout_weight="0.32"/>
+    </LinearLayout>
+    <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" android:layout_weight="0.5">
+            <ProgressBar
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/levelX" android:layout_gravity="center_horizontal"/>
+            <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent"
+                         android:layout_height="wrap_content" android:id="@+id/levelY"
+                         android:layout_gravity="center_horizontal"/>
+            <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent"
+                         android:layout_height="wrap_content" android:id="@+id/levelZ"
+                         android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:layout_gravity="right" android:layout_weight="0.5">
+            <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent"
+                         android:layout_height="wrap_content" android:id="@+id/levelA"
+                         android:layout_gravity="center_horizontal" android:layout_weight="0.4"/>
+            <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent"
+                         android:layout_height="wrap_content" android:id="@+id/levelL"
+                         android:layout_gravity="center_horizontal"/>
+            <ProgressBar style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent"
+                         android:layout_height="wrap_content" android:id="@+id/progressBar4"
+                         android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" android:id="@+id/">
+        </LinearLayout>
+        <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/proxyDown" android:checked="false"/>
+        <RadioButton android:layout_width="wrap_content" android:layout_height="match_parent"
+                     android:id="@+id/key1Down"/>
+        <RadioButton android:layout_width="wrap_content" android:layout_height="match_parent"
+                     android:id="@+id/key2Down"/>
+        <RadioButton android:layout_width="wrap_content" android:layout_height="match_parent"
+                     android:id="@+id/key3Down"/>
+    </LinearLayout>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hello World, Main"
+            android:id="@+id/op"
+            android:layout_weight="0.66" android:textIsSelectable="false"/>
 
 
 </LinearLayout>

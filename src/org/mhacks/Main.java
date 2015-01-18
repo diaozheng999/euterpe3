@@ -9,12 +9,12 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.TextView;
+import android.widget.*;
 import de.humatic.nmj.*;
 import android.view.View;
-import android.widget.ToggleButton;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,7 +61,7 @@ public class Main extends Activity implements SensorEventListener {
 
 
 
-    public void sendValue(float val, float clampLow, float clampHigh, int effectBank, int effectValue){
+    public int sendValue(float val, float clampLow, float clampHigh, int effectBank, int effectValue){
         byte[] vals = new byte[3];
         vals[0] = (byte) effectBanks[effectBank];
         vals[1] = (byte) effectValues[effectValue];
@@ -77,15 +77,43 @@ public class Main extends Activity implements SensorEventListener {
         try{
             Vector<Integer> key = new Vector<Integer>(effectBank, effectValue);
             if(cache.containsKey(key) && Arrays.equals(cache.get(key), vals)){
-                return;
+                return (int)vals[2];
             }
             output.sendMidiOnThread(vals);
             status2.append("Sent values "+vals[0]+"/"+vals[1]+"/"+vals[2]+"\n");
             cache.put(key, vals);
             status2.scrollTo(0, status2.getHeight());
+            return (int)vals[2];
         }catch(Exception e){
             status2.append(e.getMessage());
             status2.scrollTo(0,status2.getHeight());
+            return 0;
+        }
+    }
+
+    public boolean sendNote(int note, boolean on){
+        byte[] vals = new byte[3];
+        if(on){
+            vals[0] = (byte) 144;
+        }else{
+            vals[0] = (byte) 128;
+        }
+        vals[1] = (byte) note;
+        vals[3] = (byte) 64;
+        try{
+            Vector<Integer> key = new Vector<Integer>(note, on ? 1 : 0);
+            if(cache.containsKey(key) && Arrays.equals(cache.get(key), vals)){
+                return false;
+            }
+            output.sendMidiOnThread(vals);
+            status2.append("Sent values "+vals[0]+"/"+vals[1]+"/"+vals[2]+"\n");
+            cache.put(key, vals);
+            status2.scrollTo(0, status2.getHeight());
+            return true;
+        }catch(Exception e){
+            status2.append(e.getMessage());
+            status2.scrollTo(0,status2.getHeight());
+            return false;
         }
     }
 
@@ -115,6 +143,49 @@ public class Main extends Activity implements SensorEventListener {
         reportZ = (ToggleButton) findViewById(R.id.reportZ);
         reportA = (ToggleButton) findViewById(R.id.reportA);
         reportL = (ToggleButton) findViewById(R.id.reportL);
+
+        // this goes wherever you setup your button listener:
+        ((Button) findViewById(R.id.btn1)).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    sendNote(66, true);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    sendNote(66, false);
+                }
+                return true;
+            }
+        });
+
+        // this goes wherever you setup your button listener:
+        ((Button) findViewById(R.id.btn2)).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    sendNote(68, true);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    sendNote(68, false);
+                }
+                return true;
+            }
+        });
+
+        // this goes wherever you setup your button listener:
+        ((Button) findViewById(R.id.btn3)).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    sendNote(70, true);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    sendNote(70, false);
+                }
+                return true;
+            }
+        });
+
+    }
+
+    public void onConnect(View view){
         try{
             sys = NetworkMidiSystem.get(this);
         }catch(Exception e){
@@ -122,12 +193,17 @@ public class Main extends Activity implements SensorEventListener {
             return;
         }
 
+        String ip1 = ((EditText) findViewById(R.id.ipField1)).getText().toString();
+        String ip2 = ((EditText) findViewById(R.id.ipField2)).getText().toString();
+        String ip3 = ((EditText) findViewById(R.id.ipField3)).getText().toString();
+        String ip4 = ((EditText) findViewById(R.id.ipField4)).getText().toString();
+        //35.2.123.178
 
         //set the protocol and number of channels
         NMJConfig.setNumChannels(1);
         NMJConfig.setMode(0, NMJConfig.RTPA);
-        NMJConfig.setPort(0, 5004);
-        NMJConfig.setIP(0,"35.2.123.178");
+        NMJConfig.setPort(0, Integer.parseInt(((EditText) findViewById(R.id.portField)).toString()));
+        NMJConfig.setIP(0,ip1+"."+ip2+"."+ip3+"."+ip4);
 
         //attempt to start up the connection
 
@@ -182,11 +258,11 @@ public class Main extends Activity implements SensorEventListener {
         float y = values[1];
         float z = values[2];
         if(reportX.isChecked())
-        sendValue(x, -10, 10, 0, 0);
+            ((ProgressBar) findViewById(R.id.levelX)).setProgress(sendValue(x, -10, 10, 0, 0));
         if(reportY.isChecked())
-        sendValue(y, -10, 10, 0, 1);
+            ((ProgressBar) findViewById(R.id.levelY)).setProgress(sendValue(y, -10, 10, 0, 1));
         if(reportZ.isChecked())
-        sendValue(z, -10, 10, 0, 2);
+            ((ProgressBar) findViewById(R.id.levelZ)).setProgress(sendValue(z, -10, 10, 0, 2));
 
 
         TextView t = (TextView) findViewById(R.id.textView);
@@ -206,8 +282,14 @@ public class Main extends Activity implements SensorEventListener {
     private void getProximity(SensorEvent event) {
         float[] value = event.values;
         float a = value[0];
-        if (reportA.isChecked())
-            sendValue(a, 0, 5, 0, 3);
+        if (reportA.isChecked()){
+            if(a<5){
+                sendNote(64, true);
+            }else{
+                sendNote(64, false);
+            }
+        }
+
         TextView s = (TextView) findViewById(R.id.proximity);
         s.setText("proximity: " + String.valueOf(a));
     }
